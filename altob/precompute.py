@@ -4,29 +4,33 @@ from Bio import SeqIO
 
 
 def process_reference():
-    cov = list(SeqIO.parse("sequence.gb", "genbank"))[0]
+    tob = list(SeqIO.parse("sequence.gb", "genbank"))[0]
+    tob_root = list(SeqIO.parse("root_genome.fasta", "fasta"))[0]
 
     genes = {}
+    gene_map = {'AT154_gp1': 'RdRp', 'AT154_gp3': 'MP', 'AT154_gp4': 'CP'}
 
-    for f in cov.features:
+    for f in tob.features:
         if f.type == 'gene':
-            gene = f.qualifiers['gene'][0]
-            start = int(f.location.start)
-            end = int(f.location.end)
-            genes[gene] = [start, end]
+            gene = f.qualifiers['locus_tag'][0]
+            if gene in gene_map:
+                gene = gene_map[gene]
+                start = int(f.location.start)
+                end = int(f.location.end)
+                genes[gene] = [start, end]
 
-    with open('sars_cov_2.py', 'w') as f:
-        f.write('genes = {}\n\nseq = \'{}\''.format(genes, cov.seq))
+    with open('tobrfv.py', 'w') as f:
+        f.write('genes = {}\n\nseq = \'{}\''.format(genes, tob_root.seq))
 
 
 def get_amplicons():
-    cov = list(SeqIO.parse("sequence.gb", "genbank"))[0]
-    with open('nCoV-2019.insert.bed', 'r') as f:
+    tob = list(SeqIO.parse("sequence.gb", "genbank"))[0]
+    with open('scheme.insert.bed', 'r') as f:
         inserts = [l.split('\t') for l in f.read().split('\n')[:-1]]
 
     for i in range(len(inserts)):
         insert = inserts[i]
-        section = cov.seq[int(insert[1]):int(insert[2])]
+        section = tob.seq[int(insert[1]):int(insert[2])]
         gc = (section.count('G') + section.count('C')) / len(section)
         inserts[i].append(gc)
 
@@ -49,18 +53,23 @@ def fix_mut_name(old_mut_name):
 
 
 def get_mutations():
-    # TODO figure out capitalization
-    with open('mutations.json', 'r') as f:
-        raw_mutations = json.loads(f.read())
+    with open('tobrfv_mutations.csv', 'r') as f:
+        raw_mutations = [line.split(',') for line in f.read().splitlines()[1:]]
 
-    muts = list(set([fix_mut_name(m['mutation']) for m in raw_mutations]))
-    lins = list(set([m['pangolin_lineage'].upper() for m in raw_mutations]))
-    mut_lins = {mut: {lin: 0 for lin in lins} for mut in muts}
+    blacklist = [
+        'A1898T',
+    ]
+    raw_mutations = [m for m in raw_mutations if m[2] not in blacklist]
+    muts = list(set([m[2] for m in raw_mutations]))
+    lins = list(set([m[0] for m in raw_mutations]))
+    mut_lins = {mut: {'Clade {}'.format(lin): 0 for lin in lins} for mut in muts}
     for raw_m in raw_mutations:
-        mut = fix_mut_name(raw_m['mutation'])
-        lin = raw_m['pangolin_lineage'].upper()
-        prev = raw_m['prevalence']
-        mut_lins[mut][lin] = prev
+        # mut = fix_mut_name(raw_m['mutation'])
+        # lin = raw_m['pangolin_lineage'].upper()
+        mut = raw_m[2]
+        lin = 'Clade {}'.format(raw_m[0])
+        # prev = raw_m['prevalence']
+        mut_lins[mut][lin] = 1
 
     with open('mutations.py', 'w') as f:
          f.write('mutations = {}'.format(mut_lins))
@@ -193,8 +202,8 @@ def get_constellations():
 
 
 if __name__ == '__main__':
-    # process_reference()
-    # get_amplicons()
-    # get_mutations()
-    get_who_mutations()
+    process_reference()
+    get_amplicons()
+    get_mutations()
+    # get_who_mutations()
     # get_constellations()

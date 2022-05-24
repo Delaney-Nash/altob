@@ -21,6 +21,7 @@ setup(
         'matplotlib',
         'seaborn',
         'pysam',
+        'ortools',
     ],
     entry_points={
         'console_scripts': ['altob=altob.command_line:main'],

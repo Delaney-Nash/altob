@@ -88,7 +88,7 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
         # cbar=False,
     )
     plt.xlabel('Frequency in sample')
-    plt.ylabel('SARS-CoV-2 lineage')
+    plt.ylabel('ToBRFV lineage')
     # plt.subplots_adjust(bottom=0.3, left=0.3)
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
@@ -301,12 +301,12 @@ def do_regression_linear(lmps, Y, muts):
         yp = sum([lins[i].solution_value() * lmps[i][j] for i in range(num_lins)])
         diffs.append(Y[j] - yp)
         mut_diffs[muts[j]] = diffs[j]
-        if res > 0.1:
+        if res > 0.001:
             print(muts[j])
             print(res)
             print(diffs[j])
             sig_idxs.append(j)
-    if len(sig_idxs) > 0 and False:
+    if len(sig_idxs) > 0 and True:
         d = {}
         d['muts'] = [muts[i] for i in sig_idxs]
         d['residuals'] = [diffs[i] for i in sig_idxs]
@@ -336,7 +336,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
-        lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+        lineages = list(mut_lins['A260T'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)
@@ -373,16 +373,16 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
-    # X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
-    X, reg = do_regression(merged_lmps, Y)
+    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
+    # X, reg = do_regression(merged_lmps, Y)
 
     # print_mut_results(mut_results)
     sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
     print(sample_results)
     # Normalize frequencies
-    freq_sum = sum(sample_results[lin] for lin in sample_results)
-    for lin in sample_results:
-        sample_results[lin] = sample_results[lin] / freq_sum
+    # freq_sum = sum(sample_results[lin] for lin in sample_results)
+    # for lin in sample_results:
+    #     sample_results[lin] = sample_results[lin] / freq_sum
 
     if return_data:
         return sample_results, X, Y, covered_muts

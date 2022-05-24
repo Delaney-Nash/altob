@@ -2,7 +2,7 @@ from .artic_amplicons import inserts
 from .convert_mutations import aa, nt
 
 
-inserts = inserts[70:85]
+# inserts = inserts[70:85]
 
 def plot_depths(sample_results, sample_names):
     import numpy as np

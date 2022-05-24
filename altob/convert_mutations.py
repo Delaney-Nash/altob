@@ -1,6 +1,6 @@
 import re
 
-from .sars_cov_2 import genes, seq
+from .tobrfv import genes, seq
 
 
 codons = { 
