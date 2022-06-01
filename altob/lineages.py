@@ -306,7 +306,7 @@ def do_regression_linear(lmps, Y, muts):
             print(res)
             print(diffs[j])
             sig_idxs.append(j)
-    if len(sig_idxs) > 0 and True:
+    if len(sig_idxs) > 0 and False:
         d = {}
         d['muts'] = [muts[i] for i in sig_idxs]
         d['residuals'] = [diffs[i] for i in sig_idxs]
@@ -323,7 +323,7 @@ def do_regression_linear(lmps, Y, muts):
     return X, [lin.solution_value() for lin in lins], mut_diffs
 
 
-def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=True):
+def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False):
     import numpy as np
     import pysam
 
