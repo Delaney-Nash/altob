@@ -280,8 +280,8 @@ def do_regression_linear(lmps, Y, muts):
         for i in range(num_lins):
             constraints_1[j].SetCoefficient(lins[i], lmps[i][j])
             constraints_2[j].SetCoefficient(lins[i], lmps[i][j])
-    freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
-    # freqs = solver.Constraint(0, 1, 'frequencies')
+    # freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
+    freqs = solver.Constraint(0, 1, 'frequencies')
     for i in range(num_lins):
         freqs.SetCoefficient(lins[i], 1)
     objective = solver.Objective()
