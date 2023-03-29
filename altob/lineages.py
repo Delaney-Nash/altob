@@ -349,22 +349,14 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     samfile = pysam.Samfile(bam_path, "rb")
 
     aa_mutations = [m for m in mut_lins.keys()]
-    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
-    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
-    aa_blacklist = ['S:D614G'] # all lineages contain this now
+    aa_blacklist = [] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
-    # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
         lineages = list(mut_lins['A260T'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)
-    vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
-    vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
-    # if only_vocs:
-    # lineages = vocs + vois
-    # lineages = ['Omicron', 'BA.2', 'Delta']
-
+   
     mut_results = find_mutants_in_bam(bam_path, aa_mutations)
 
     covered_muts = [m for m in aa_mutations if sum(mut_results[m]) >= min_depth]

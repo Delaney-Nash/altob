@@ -198,7 +198,7 @@ def mut_idx(mut):
 
 
 # def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
-def find_mutants(file_path, mutations_path, min_depth, save_img):
+def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
