@@ -141,7 +141,6 @@ def get_who_mutations():
     with open('mutations.py', 'w') as f:
          f.write('mutations = {}'.format(mutations))
 
-
 def get_constellations():
     import json
     from os import getenv, listdir, mkdir, system
@@ -161,31 +160,32 @@ def get_constellations():
         mut = mut.replace('ORF7b', 'ORF7b')
         return mut
 
-    home = getenv("HOME")
-    const_dir = '{}/Code/constellations'.format(home) # Fill in
-    data_path = '{}/constellations/definitions'.format(const_dir)
+    data_paths = [
+        './clades/',
+    ]
 
-    fns = [f for f in listdir(data_path) if isfile(join(data_path, f)) and f.endswith('.json')]
-    fns.sort()
     constellations = {}
     mutations = {}
-    for fn in fns:
-        with open('{}/{}'.format(data_path, fn), 'r') as f:
-            voc = json.loads(f.read())
-        label = voc['label']
-        constellations[label] = [parse_mut(mut) for mut in voc['sites']]
+    for data_path in data_paths:
+        fns = [f for f in listdir(data_path) if isfile(join(data_path, f)) and f.endswith('.json')]
+        fns.sort()
+        for fn in fns:
+            with open('{}/{}'.format(data_path, fn), 'r') as f:
+                voc = json.loads(f.read())
+            label = voc['label']
+            constellations[label] = [parse_mut(mut) for mut in voc['sites']]
     with open('constellations.py', 'w') as f:
          f.write('constellations = {}'.format(constellations))
     vocs = list(constellations.keys())
     # Remove non-specific lineages
-    constellations['Omicron (XE-like)'] += constellations['XE-parent1']
-    constellations['Omicron (XE-like)'] += constellations['XE-parent2']
-    for voc in constellations:
-        if 'Omicron' in voc:
-            constellations[voc] += constellations['Omicron (Unassigned)']
-    vocs.remove('Omicron (Unassigned)')
-    vocs.remove('XE-parent1')
-    vocs.remove('XE-parent2')
+#    constellations['Omicron (XE-like)'] += constellations['XE-parent1']
+#    constellations['Omicron (XE-like)'] += constellations['XE-parent2']
+#    for voc in constellations:
+#        if 'Omicron' in voc:
+#            constellations[voc] += constellations['Omicron (Unassigned)']
+#    vocs.remove('Omicron (Unassigned)')
+#    vocs.remove('XE-parent1')
+#    vocs.remove('XE-parent2')
     for voc in vocs:
         for mut_name in constellations[voc]:
             # if mut_name in blacklist:
@@ -204,6 +204,6 @@ def get_constellations():
 if __name__ == '__main__':
     process_reference()
     get_amplicons()
-    get_mutations()
+    # get_mutations()
     # get_who_mutations()
-    # get_constellations()
+    get_constellations()

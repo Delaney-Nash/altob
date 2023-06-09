@@ -1,9 +1,8 @@
-LOCUS       NC_028478               6393 bp ss-RNA     linear   VRL 13-AUG-2018
+LOCUS       KT383474                6393 bp ss-RNA     linear   VRL 26-MAY-2016
 DEFINITION  Tomato brown rugose fruit virus isolate Tom1-Jo, complete genome.
-ACCESSION   NC_028478
-VERSION     NC_028478.1
-DBLINK      BioProject: PRJNA485481
-KEYWORDS    RefSeq.
+ACCESSION   KT383474
+VERSION     KT383474.1
+KEYWORDS    .
 SOURCE      Tomato brown rugose fruit virus
   ORGANISM  Tomato brown rugose fruit virus
             Viruses; Riboviria; Orthornavirae; Kitrinoviricota; Alsuviricetes;
@@ -14,23 +13,14 @@ REFERENCE   1  (bases 1 to 6393)
   JOURNAL   Arch. Virol. 161 (2), 503-506 (2016)
    PUBMED   26586328
 REFERENCE   2  (bases 1 to 6393)
-  CONSRTM   NCBI Genome Project
-  TITLE     Direct Submission
-  JOURNAL   Submitted (03-DEC-2015) National Center for Biotechnology
-            Information, NIH, Bethesda, MD 20894, USA
-REFERENCE   3  (bases 1 to 6393)
   AUTHORS   Salem,N.M., Mansour,A.N., Ciuffo,M., Falk,B.W. and Turina,M.
   TITLE     Direct Submission
   JOURNAL   Submitted (11-AUG-2015) Istituto per la Protezione Sostenibile
             Delle Piante, CNR Torino, Italy, Strada delle Cacce 73, Torino, TO
             10135, Italy
-COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
-            NCBI review. The reference sequence is identical to KT383474.
-            
-            ##Assembly-Data-START##
+COMMENT     ##Assembly-Data-START##
             Sequencing Technology :: Sanger dideoxy sequencing
             ##Assembly-Data-END##
-            COMPLETENESS: full length.
 FEATURES             Location/Qualifiers
      source          1..6393
                      /organism="Tomato brown rugose fruit virus"
@@ -40,16 +30,11 @@ FEATURES             Location/Qualifiers
                      /db_xref="taxon:1761477"
                      /country="Jordan"
                      /collection_date="17-Apr-2015"
-     gene            77..4924
-                     /locus_tag="AT154_gp1"
-                     /db_xref="GeneID:26373868"
      CDS             77..4924
-                     /locus_tag="AT154_gp1"
                      /codon_start=1
                      /transl_except=(pos:3425..3427,aa:OTHER)
                      /product="183 kDa replicase"
-                     /protein_id="YP_009182168.1"
-                     /db_xref="GeneID:26373868"
+                     /protein_id="ALP48476.1"
                      /translation="MAYTQTATTSALLDTVRGNNTLVNDLAKRRLYDTAVDEFNARDR
                      RPKVNFSKVISEEQTLIATRAYPEFQITFYNTQNAVHSLAGGLRSLELEYLMMQIPYG
                      SLTYDIGGNFASHLFKGRAYVHCCMPNLDVRDIMRHEGQKDSIELYLSRLERGNKVVP
@@ -79,15 +64,10 @@ FEATURES             Location/Qualifiers
                      QHTANLMWNFEAKLFRKQYGYFCGRYVIHHDRGCIVYYDPLKLISKLGAKHIKDWDHL
                      EEFRRSLCDVANSLNNCAYYTQLDDAVSEVHKTAPPGSFVYKSLVKYLSDKVLFRSLF
                      IDGSC"
-     gene            77..3427
-                     /locus_tag="AT154_gp2"
-                     /db_xref="GeneID:26373865"
      CDS             77..3427
-                     /locus_tag="AT154_gp2"
                      /codon_start=1
                      /product="126 kDa replicase"
-                     /protein_id="YP_009182169.1"
-                     /db_xref="GeneID:26373865"
+                     /protein_id="ALP48477.1"
                      /translation="MAYTQTATTSALLDTVRGNNTLVNDLAKRRLYDTAVDEFNARDR
                      RPKVNFSKVISEEQTLIATRAYPEFQITFYNTQNAVHSLAGGLRSLELEYLMMQIPYG
                      SLTYDIGGNFASHLFKGRAYVHCCMPNLDVRDIMRHEGQKDSIELYLSRLERGNKVVP
@@ -108,29 +88,19 @@ FEATURES             Location/Qualifiers
                      ITHYLNRRYEGYVMCTSSVKKSVSQEMVSGAAMINPVSKPLNGKVLTFTQSDKEALLS
                      RGYTDVHTVHEVQGETYADVSLVRLTPTPVSIIAGDSPHVLVALSRHTQTLKYYTVVM
                      DPLVSIIRDLEKLSSYLLDMYKVDAGTQ"
-     gene            4911..5711
-                     /locus_tag="AT154_gp3"
-                     /db_xref="GeneID:26373866"
      CDS             4911..5711
-                     /locus_tag="AT154_gp3"
                      /codon_start=1
                      /product="30 kDa movement protein"
-                     /protein_id="YP_009182170.1"
-                     /db_xref="GeneID:26373866"
+                     /protein_id="ALP48478.1"
                      /translation="MALVKGKVNINEFIDLSKSEKFLPSMFTPVKSVMISKVDKILVH
                      EDESLSEVNLLKGVKLIDGGYVHLAGLVVTGEWNLPDNCRGGVSVCLVDKRMERADEA
                      TLASYYTAAAKKRFQFKVVPNYNITTKDAEKAVWQVLVNIRNVKIAAGYCPLSLEFVS
                      VCIVYKNIIKLGLREKITSVTDGGPMELSEEVVDEFMEEVPMSVRLAKFRSKTGKKFS
                      SKSENNSGNNRPKPDKNQRKEKGLKVRVEKDNLIDNELETYVADSDSY"
-     gene            5714..6193
-                     /locus_tag="AT154_gp4"
-                     /db_xref="GeneID:26373867"
      CDS             5714..6193
-                     /locus_tag="AT154_gp4"
                      /codon_start=1
                      /product="17.5 kDa coat protein"
-                     /protein_id="YP_009182171.1"
-                     /db_xref="GeneID:26373867"
+                     /protein_id="ALP48479.1"
                      /translation="MSYTIATPSQFVFLSSAWADPIELINLCTNSLGNQFQTQQARTT
                      VQRQFSEVWKPVPQVTVRFPDSGFKVYRYNAVLDPLVTALLGAFDTRNRIIEVENQAN
                      PTTAETLDATRRVDDATVAIRSAINNLVVELVKGTGLYNQSTFESASGLQWSSAPAS"
@@ -243,4 +213,3 @@ ORIGIN
      6301 gcgcgcggga caaatgtgta tggttcatac acatccgtag gcacgtaata aagcgaggga
      6361 ttcgaattcc cccggaaccc ccggaggggc cca
 //
-
