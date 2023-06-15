@@ -25,78 +25,68 @@ def process_phylogenetic_tree(tree):
     print("Processing phylogenetic tree...")
     clades = set()
     traverse_tree(tree["tree"], clades)  # Traverse the tree to collect unique clade names
+
     for clade_name in clades:
         clade_mutations = extract_all_mutations(tree["tree"], clade_name)  # Extract mutations for the clade
         write_json_file(clade_name, clade_mutations)  # Write mutations to a JSON file
         print(f"Processed clade: {clade_name}")
+
     print("Processing completed.")
 
-def traverse_tree(clade, clades):
+def traverse_tree(node, clades, target_clade=None, parent_mutations=None):
     """
     Traverse the phylogenetic tree to collect unique clade names.
+    If a target clade is provided, only mutations from that clade and its parent nodes are collected.
     """
-    if "node_attrs" in clade and "clade" in clade["node_attrs"]:
-        clades.add(clade["node_attrs"]["clade"]["value"])  # Add clade name to the set
+    if "node_attrs" in node and "clade" in node["node_attrs"]:
+        clade_name = node["node_attrs"]["clade"]["value"]
+        if clade_name == target_clade or parent_mutations is not None:
+            clades.add(clade_name)  # Add clade name to the set
 
-    if "children" in clade:
-        for child in clade["children"]:
-            traverse_tree(child, clades)  # Recursively traverse child nodes
+    if "branch_attrs" in node and "mutations" in node["branch_attrs"]:
+        branch_mutations = node["branch_attrs"]["mutations"]
+        if "nuc" in branch_mutations:
+            if parent_mutations is not None:
+                parent_mutations.update(branch_mutations["nuc"])  # Update parent mutations with current mutations
+            else:
+                parent_mutations = set(branch_mutations["nuc"])
 
-def extract_unique_clades(clade):
-    """
-    Extract unique clade names from a given clade and its descendants.
-    """
-    clades = set()
-    if "node_attrs" in clade and "clade_membership" in clade["node_attrs"]:
-        clades.add(clade["node_attrs"]["clade"]["value"])  # Add clade name to the set
+    if "children" in node:
+        for child in node["children"]:
+            traverse_tree(child, clades, target_clade, parent_mutations)  # Recursively traverse child nodes
 
-    if "children" in clade:
-        for child in clade["children"]:
-            child_clades = extract_unique_clades(child)  # Recursively extract clades from child nodes
-            clades.update(child_clades)  # Add child clades to the set
-
-    return clades
-
-def process_clade(clade):
-    """
-    Process a specific clade by extracting its mutations and processing its children.
-    """
-    clade_name = clade["node_attrs"]["clade"]["value"]
-    clade_mutations = extract_all_mutations(clade, clade_name)  # Extract mutations for the clade
-
-    # Print debugging information
-    print(f"Processing clade: {clade_name}")
-    print(f"Clade mutations: {clade_mutations}")
-
-    for child in clade.get("children", []):
-        process_clade(child)  # Recursively process child nodes
-
-    write_json_file(clade_name, clade_mutations)  # Write mutations to a JSON file
-
-def extract_all_mutations(clade, target_clade=None):
+def extract_all_mutations(node, target_clade=None):
     """
     Extract all mutations from a specific clade and its parent nodes.
     If a target clade is provided, only mutations from that clade are extracted.
+    Exclude mutations with positions less than 1 after subtracting 106.
     """
     mutations = set()
-    if "branch_attrs" in clade and "mutations" in clade["branch_attrs"]:
-        branch_mutations = clade["branch_attrs"]["mutations"]
-        if "nuc" in branch_mutations:
-            mutations.update(branch_mutations["nuc"])
 
-    if target_clade and "node_attrs" in clade and "clade_membership" in clade["node_attrs"]:
-        clade_membership = clade["node_attrs"]["clade_membership"]["value"]
+    if target_clade and "node_attrs" in node and "clade" in node["node_attrs"]:
+        clade_membership = node["node_attrs"]["clade"]["value"]
         if clade_membership == target_clade:
+            if "branch_attrs" in node and "mutations" in node["branch_attrs"]:
+                branch_mutations = node["branch_attrs"]["mutations"]
+                if "nuc" in branch_mutations:
+                    for mutation in branch_mutations["nuc"]:
+                        ref_nt = mutation[0]
+                        position = int(mutation[1:-1]) - 106
+                        alt_nt = mutation[-1]
+                        if position >= 1:
+                            new_mutation = f"{ref_nt}{position}{alt_nt}"
+                            mutations.add(new_mutation)
             return list(mutations)  # Return mutations if target clade is found
 
-    if "children" in clade:
-        for child in clade["children"]:
+    if "children" in node:
+        for child in node["children"]:
             child_mutations = extract_all_mutations(child, target_clade)  # Extract mutations from child nodes
             mutations.update(child_mutations)  # Add child mutations to the set
 
     return list(mutations)
 
-def write_json_file(clade_name, clade_mutations):
+
+def write_json_file(clade_name, mutations):
     """
     Write clade mutations to a JSON file.
     """
@@ -105,19 +95,8 @@ def write_json_file(clade_name, clade_mutations):
         "description": f"{clade_name} defining mutations",
         "sources": [],
         "tags": [clade_name],
-        "sites": list(clade_mutations),  # Convert mutations set to a list
-        "note": "Unique mutations for sublineage",
-        "rules": {
-            "default": {
-                "min_alt": "",
-                "max_ref": ""
-            },
-            "Probable": {
-                "min_alt": "",
-                "max_ref": ""
+        "sites": mutations,
             }
-        }
-    }
 
     output_dir = "clades"
     os.makedirs(output_dir, exist_ok=True)
