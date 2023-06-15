@@ -17,7 +17,7 @@ Requires cutadapt, minimap2, samtools, and a reference genome (called sars-cov-2
 
 data_path = "all_fastq/" # Directory with all fastq files to process
 output_master = "Output/" # All outputs (sam, bam, bai) will end up here in separate directories for each sample
-REF = "/home/jknapp/data/REF/sars-cov-2.fasta" # Path to reference wildtype sequence in fasta format
+REF = "/home/jknapp/data/REF/ToBRFV.fasta" # Path to reference wildtype sequence in fasta format
 
 #### Edit above for your system ####
 
@@ -92,7 +92,7 @@ for read1 in all_fastq:
     
         i = i + 1
     
-# Make samples.txt in parent directory - needed as input for ALCOV                
+# Make samples.txt in parent directory - needed as input for ALTOB                
 with open('samples_mm2.txt', 'w') as f:
     f.write('\n'.join(['\t'.join(line) for line in samples]))
    
