@@ -75,7 +75,7 @@ def print_mut_results(mut_results, min_depth):
     print('{}/{} mutations covered'.format(cov, len(mut_results)))
     print('{}/{} mutations detected'.format(mut_cov, len(mut_results)))
 
-def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
+def plot_mutations(sample_results, sample_names, min_depth, img_path):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -91,6 +91,26 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
             # mut_fractions[i].append(round(fraction, 2))
             mut_fractions[i].append(round(fraction, 4))
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
+
+# get the tick label font size
+    fontsize_pt = plt.rcParams['ytick.labelsize']
+    dpi = 72.27
+
+# comput the matrix height in points and inches
+    matrix_height_pt = fontsize_pt * (len(mut_fractions)+30)
+    matrix_height_in = matrix_height_pt / dpi
+
+# compute the required figure height 
+    top_margin = 0.10  # in percentage of the figure height
+    bottom_margin = 0.20 # in percentage of the figure height
+    figure_height = matrix_height_in / (1 - top_margin - bottom_margin)
+    figure_width = len(sample_names) * 2 + 5
+
+# build the figure instance with the desired height
+    fig, ax = plt.subplots(
+        figsize=(figure_width, figure_height), 
+        gridspec_kw=dict(top=1-top_margin, bottom=bottom_margin),
+)
     ax = sns.heatmap(
         mut_fractions,
         annot=True,
@@ -100,17 +120,40 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
         yticklabels=names,
         vmin=0,
         vmax=1,
+        fmt='.2f',
     )
     plt.xlabel('Sample')
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=30, ha="right", rotation_mode="anchor")
     plt.ylabel('Mutation')
     # plt.show()
-    plt.tight_layout()
+    # plt.tight_layout()
     if img_path is not None:
         plt.savefig(img_path, dpi=300)
     else:
         plt.show()
 
+def write_csv(sample_results, sample_names, min_depth, home_lab, mutants_name):
+    names = sample_results[0].keys()
+    sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
+    num_mutations = len(names)
+    mut_fractions = [[] for _ in range(num_mutations)]
+    for i in range(num_mutations):
+        for counts in sample_counts:
+            count = counts[i]
+            total = count[0] + count[1]
+            fraction = count[0]/total if total >= min_depth else -1
+            # mut_fractions[i].append(round(fraction, 2))
+            mut_fractions[i].append(round(fraction, 4))
+
+    mut_names = set()
+    mut_names = [n for n in names]
+    csv_headers = ['Mutation'] + [n + ' %' for n in sample_names]
+    csv_rows = []
+    for i in range(num_mutations):
+        sm = mut_fractions[i]
+        csv_rows.append([str(mut_names[i])] + [str(sm[j]) for j in range(len(sample_names))])
+    with open('{0}_{1}_mutations.csv'.format(home_lab, mutants_name), 'w') as f:
+        f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 def find_mutants_in_bam(bam_path, mutations):
     import pysam
@@ -155,7 +198,7 @@ def mut_idx(mut):
 
 
 # def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
-def find_mutants(file_path, mutations_path, min_depth, save_img):
+def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -164,7 +207,8 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
 
     sample_results = []
     sample_names = []
-    lineages = list(mut_lins['A260T'].keys()) # arbitrary
+    sample_set = file_path.replace('.txt', '')
+    lineages = list(mut_lins['C1228'].keys()) # arbitrary
     print(lineages)
     if mutations_path in lineages:
         lin = mutations_path
@@ -194,5 +238,13 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
                 print()
 
     mutants_name = mutations_path.replace('.txt', '').replace('.', '')
-    img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
+#    img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
+    if save_img:
+        img_path = file_path.replace('.txt', '_{}_mutations.png'.format(mutants_name))
+    else:
+        img_path=None
+
+    if csv:
+        write_csv(sample_results, sample_names, min_depth, sample_set, mutants_name)
+
     plot_mutations(sample_results, sample_names, min_depth, img_path)

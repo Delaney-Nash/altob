@@ -1,0 +1,18 @@
+{
+    "label": "clade_4",
+    "description": "clade_4 defining mutations",
+    "sources": [],
+    "tags": [
+        "clade_4"
+    ],
+    "sites": [
+	"G733A",
+	"T1283C",
+	"T1897",
+	"T3026C",
+	"C3262T",
+	"G5607A",
+	"A6385T",
+	"G6386A"
+    ]
+}

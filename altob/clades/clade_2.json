@@ -1,0 +1,19 @@
+{
+    "label": "clade_2",
+    "description": "clade_2 defining mutations",
+    "sources": [],
+    "tags": [
+        "clade_2"
+    ],
+    "sites": [
+        "T835C",
+	"T886C",
+	"C1779T",
+	"A2097T",
+	"A2516G",
+	"C2998T",
+	"T3224C",
+	"T3749C",
+	"G4314A"
+    ]
+}

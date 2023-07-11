@@ -1,0 +1,24 @@
+{
+    "label": "clade_7",
+    "description": "clade_7 defining mutations",
+    "sources": [],
+    "tags": [
+        "clade_7"
+    ],
+    "sites": [
+        "T54C",
+	"A924G",
+	"C1139A",
+	"A2002G",
+	"A2527G",
+	"G2611A",
+	"T3114C",
+	"T3873A",
+	"C4008T",
+	"A4853G",
+	"G5502T",
+	"G5689A",
+	"A6377T",
+	"A6395C"
+    ]
+}

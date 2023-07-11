@@ -1,0 +1,19 @@
+{
+    "label": "clade_8",
+    "description": "clade_8 defining mutations",
+    "sources": [],
+    "tags": [
+        "clade_8"
+    ],
+    "sites": [
+        "C148T",
+	"G973A",
+	"T1861A",
+	"G4349A",
+	"A4768T",
+	"A4853T",
+	"A5604G",
+	"A5609G",
+	"A5608G"
+    ]
+}

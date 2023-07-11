@@ -1,0 +1,20 @@
+{
+    "label": "clade_3",
+    "description": "clade_3 defining mutations",
+    "sources": [],
+    "tags": [
+        "clade_3"
+    ],
+    "sites": [
+        "T680C",
+	"C820T",
+	"T3026C",
+	"G3670A",
+	"T3693A",
+	"A4163G",
+	"T4465A",
+	"T4648C",
+	"C5465T",
+	"G5607A"
+    ]
+}

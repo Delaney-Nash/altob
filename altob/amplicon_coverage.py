@@ -29,6 +29,7 @@ def plot_depths(sample_results, sample_names):
     g.map(sns.barplot, "Amplicon number", "Log depth", order=[str(i) for i in range(1,99)], hue_order=['Pool 1', 'Pool 2'])
     # plt.locator_params(axis='x', nbins=20)
     plt.locator_params(axis='x')
+    plt.savefig('SA_coverage.png')
     plt.show()
 
 
@@ -38,6 +39,7 @@ def plot_depths_gc(sample_results, sample_names):
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
     import seaborn as sns
+    from scipy import stats
     # sns.set_theme(style="whitegrid")
     depths = sample_results[0]
     samples = sum([98*[name] for name in sample_names], [])
@@ -53,9 +55,13 @@ def plot_depths_gc(sample_results, sample_names):
         'Log depth': depths
     }
     df = pd.DataFrame(data=d)
-    df = df.loc[df['Log depth'] != 0]
+#    df = df.loc[df['Log depth'] != 0]
     g = sns.FacetGrid(df, col="Sample")
     g.map(sns.regplot, "GC content", "Log depth")
+    statistic, pvalue = stats.pearsonr(gcs, depths)
+    print("Pearson correlation statistic: {}".format(statistic))
+    print("Pearson p-value (probability that variables are independent): {}".format(pvalue))
+    # print(res.confidence_interval())
     # g.map(sns.regplot, "Amplicon number", "Log depth")
     plt.show()
 

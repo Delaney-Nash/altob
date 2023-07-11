@@ -41,19 +41,19 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def write_csv(sample_results, sample_names):
+def write_csv(sample_results, sample_names, sample_set):
     lin_names = set()
     for sr in sample_results:
         for key in sr.keys():
             lin_names.add(key)
     lin_names = [n for n in lin_names]
     lin_names.sort()
-    csv_headers = ['Sample name'] + [n + ' %' for n in lin_names]
+    csv_headers = ['Sample name'] + [n for n in lin_names]
     csv_rows = []
     for i in range(len(sample_names)):
         sr = sample_results[i]
         csv_rows.append([sample_names[i]] + [str(round(sr[n], 3)) if n in sr else '0' for n in lin_names])
-    with open('sample_lineages.csv', 'w') as f:
+    with open('{}_lineages.csv'.format(sample_set), 'w') as f:
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
@@ -70,9 +70,26 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     names.sort()
     # names = sample_results[0].keys()
     lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else 0 for lin in names] for lin_results in sample_results]).T
-    # lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else -1 for lin in names] for lin_results in sample_results]).T
     # no_reads = np.array([[f == -1 for f in fractions] for fractions in lin_fractions])
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
+
+# get the tick label font size
+    fontsize_pt = plt.rcParams['ytick.labelsize']
+    dpi = 72.27  
+# comput the matrix height in points and inches
+    matrix_height_pt = fontsize_pt * (len(lin_fractions)+30)
+    matrix_height_in = matrix_height_pt / dpi
+# compute the required figure height 
+    top_margin = 0.10  # in percentage of the figure height
+    bottom_margin = 0.20 # in percentage of the figure height
+    figure_height = matrix_height_in / (1 - top_margin - bottom_margin)
+    figure_width = len(sample_names) * 2 + 5
+# build the figure instance with the desired height
+    fig, ax = plt.subplots(
+        figsize=(figure_width, figure_height), 
+        gridspec_kw=dict(top=1-top_margin, bottom=bottom_margin),
+)
+
     ax = sns.heatmap(
         lin_fractions,
         annot=True,
@@ -82,19 +99,21 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
         yticklabels=names,
         vmin=0,
         vmax=100,
-        square=True,
+        # square=True,
         cbar_kws={'format': '%.0f%%'},
         fmt='.1f',
         # cbar=False,
     )
     plt.xlabel('Frequency in sample')
-    plt.ylabel('ToBRFV lineage')
+    plt.xticks(rotation=30, ha="right", rotation_mode="anchor")
+    plt.ylabel('ToBRFV Lineage')
     # plt.subplots_adjust(bottom=0.3, left=0.3)
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    plt.tight_layout()
+    # plt.tight_layout()
     if img_path is not None:
+        plt.subplots_adjust(bottom=0.3, left=0.6)
         plt.savefig(img_path, dpi=300)
     else:
         plt.show()
@@ -323,29 +342,21 @@ def do_regression_linear(lmps, Y, muts):
     return X, [lin.solution_value() for lin in lins], mut_diffs
 
 
-def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False):
+def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False, l2=False):
     import numpy as np
     import pysam
 
     samfile = pysam.Samfile(bam_path, "rb")
 
     aa_mutations = [m for m in mut_lins.keys()]
-    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
-    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
-    aa_blacklist = ['S:D614G'] # all lineages contain this now
+    aa_blacklist = [] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
-    # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
-        lineages = list(mut_lins['A260T'].keys()) # arbitrary
+        lineages = list(mut_lins["C1228"].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)
-    vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
-    vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
-    # if only_vocs:
-    # lineages = vocs + vois
-    # lineages = ['Omicron', 'BA.2', 'Delta']
-
+   
     mut_results = find_mutants_in_bam(bam_path, aa_mutations)
 
     covered_muts = [m for m in aa_mutations if sum(mut_results[m]) >= min_depth]
@@ -373,8 +384,10 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
-    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
-    # X, reg = do_regression(merged_lmps, Y)
+    if l2:
+        X, reg = do_regression(merged_lmps, Y)
+    else:
+        X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
 
     # print_mut_results(mut_results)
     sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
@@ -391,7 +404,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     return sample_results
 
 
-def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique, save_img):
+def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique, save_img, l2):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -401,7 +414,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     sample_results = []
     sample_mut_diffs = defaultdict(list)
     sample_names = []
-
+    sample_set = file_path.replace('.txt','')
     lineages = []
     all_lins = False # Show all lineages
     if lineages_path is not None:
@@ -409,7 +422,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
         with open(lineages_path, 'r') as f:
             lineages = f.read().splitlines()
     if file_path.endswith('.bam'):
-        sr, X, Y, covered_muts = find_lineages_in_bam(file_path, True, min_depth, lineages, unique)
+        sr, X, Y, covered_muts = find_lineages_in_bam(file_path, True, min_depth, lineages, unique, l2)
         if show_stacked:
             show_lineage_predictions(sr, X, Y, covered_muts)
             show_lineage_pie(sr)
@@ -422,7 +435,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
                 # sample_result, mut_diffs = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
-                sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
+                sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique, l2)
                 if sample_result is not None and sum(sample_result.values()) > 0:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
@@ -443,4 +456,4 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     else:
         plot_lineages(sample_results, sample_names, img_path, all_lins)
     if csv:
-        write_csv(sample_results, sample_names)
+        write_csv(sample_results, sample_names, sample_set)
