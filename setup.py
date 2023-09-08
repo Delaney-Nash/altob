@@ -5,12 +5,14 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='altob',
-    version='0.1.1',
+    version='1.0.1',
     description='Identify frequencies of concerning mutations from aligned reads',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Isaac Ellmen',
     author_email='isaac.ellmen@uwaterloo.ca',
+    maintainer='Jenn Knapp',
+    maintainer_email='jenn.knapp@uwaterloo.ca',
     packages=['altob'],
     url='https://github.com/Ellmen/altob',
     install_requires=[
