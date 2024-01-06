@@ -5,6 +5,7 @@ from Bio import SeqIO
 
 def process_reference():
     tob = list(SeqIO.parse("sequence.gb", "genbank"))[0]
+    tob_root = list(SeqIO.parse("root_genome.fasta", "fasta"))[0]
 
     genes = {}
     
