@@ -5,21 +5,17 @@ from Bio import SeqIO
 
 def process_reference():
     tob = list(SeqIO.parse("sequence.gb", "genbank"))[0]
-    tob_root = list(SeqIO.parse("root_genome.fasta", "fasta"))[0]
 
     genes = {}
-    gene_map = {'AT154_gp1': 'RdRp', 'AT154_gp3': 'MP', 'AT154_gp4': 'CP'}
-
+    
     for f in tob.features:
         if f.type == 'gene':
-            gene = f.qualifiers['locus_tag'][0]
-            if gene in gene_map:
-                gene = gene_map[gene]
-                start = int(f.location.start)
-                end = int(f.location.end)
-                genes[gene] = [start, end]
+            gene = f.qualifiers['gene'][0]
+            start = int(f.location.start)
+            end = int(f.location.end)
+            genes[gene] = [start, end]
 
-    with open('tobrfv.py', 'w') as f:
+    with open('rsvA.py', 'w') as f:
         f.write('genes = {}\n\nseq = \'{}\''.format(genes, tob_root.seq))
 
 
